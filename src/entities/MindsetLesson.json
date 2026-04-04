@@ -1,0 +1,62 @@
+{
+  "name": "MindsetLesson",
+  "type": "object",
+  "properties": {
+    "day_number": {
+      "type": "integer",
+      "description": "Program day (1-90)"
+    },
+    "title": {
+      "type": "string",
+      "description": "Lesson title"
+    },
+    "brain_part": {
+      "type": "string",
+      "enum": [
+        "prefrontal_cortex",
+        "amygdala",
+        "hippocampus",
+        "basal_ganglia",
+        "nucleus_accumbens",
+        "hypothalamus",
+        "cerebellum"
+      ],
+      "description": "Which brain part this lesson targets"
+    },
+    "content": {
+      "type": "string",
+      "description": "Lesson content in markdown format"
+    },
+    "key_takeaways": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Key points from the lesson"
+    },
+    "action_steps": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Actionable steps to implement"
+    },
+    "reflection_prompts": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Questions for self-reflection"
+    },
+    "duration_minutes": {
+      "type": "integer",
+      "description": "Expected time to complete"
+    }
+  },
+  "required": [
+    "day_number",
+    "title",
+    "brain_part",
+    "content"
+  ]
+}

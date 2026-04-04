@@ -1,0 +1,46 @@
+{
+  "name": "Journal",
+  "type": "object",
+  "properties": {
+    "date": {
+      "type": "string",
+      "format": "date",
+      "description": "Journal entry date"
+    },
+    "reflection": {
+      "type": "string",
+      "description": "Daily reflection"
+    },
+    "old_habit": {
+      "type": "string",
+      "description": "Old habit to replace"
+    },
+    "new_habit": {
+      "type": "string",
+      "description": "New positive habit"
+    },
+    "wins_today": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Today's wins",
+      "default": []
+    },
+    "challenges_faced": {
+      "type": "string",
+      "description": "Challenges encountered"
+    },
+    "gratitude": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Things to be grateful for",
+      "default": []
+    }
+  },
+  "required": [
+    "date"
+  ]
+}

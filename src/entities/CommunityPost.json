@@ -1,0 +1,51 @@
+{
+  "name": "CommunityPost",
+  "type": "object",
+  "properties": {
+    "author_name": {
+      "type": "string",
+      "description": "Name of the post author"
+    },
+    "post_type": {
+      "type": "string",
+      "enum": [
+        "win",
+        "milestone",
+        "motivation",
+        "question",
+        "progress_photo"
+      ],
+      "description": "Type of post"
+    },
+    "content": {
+      "type": "string",
+      "description": "Post content"
+    },
+    "image_url": {
+      "type": "string",
+      "description": "Optional image URL"
+    },
+    "likes": {
+      "type": "integer",
+      "default": 0,
+      "description": "Number of likes"
+    },
+    "liked_by": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "User emails who liked this post",
+      "default": []
+    },
+    "day_number": {
+      "type": "integer",
+      "description": "Program day when posted"
+    }
+  },
+  "required": [
+    "author_name",
+    "post_type",
+    "content"
+  ]
+}

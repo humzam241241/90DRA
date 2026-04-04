@@ -1,0 +1,68 @@
+{
+  "type": "object",
+  "properties": {
+    "program_start_date": {
+      "type": "string",
+      "format": "date",
+      "description": "When the user started the 90-day program"
+    },
+    "current_weight": {
+      "type": "number",
+      "description": "Current weight in kg or lbs"
+    },
+    "target_weight": {
+      "type": "number",
+      "description": "Target weight goal"
+    },
+    "body_fat_percentage": {
+      "type": "number",
+      "description": "Current body fat percentage"
+    },
+    "daily_protein_target": {
+      "type": "number",
+      "description": "Daily protein goal in grams"
+    },
+    "daily_carbs_target": {
+      "type": "number",
+      "description": "Daily carbs goal in grams"
+    },
+    "daily_fats_target": {
+      "type": "number",
+      "description": "Daily fats goal in grams"
+    },
+    "daily_calories_target": {
+      "type": "number",
+      "description": "Daily calorie goal"
+    },
+    "water_intake_target": {
+      "type": "number",
+      "description": "Daily water intake goal in liters",
+      "default": 3
+    },
+    "height": {
+      "type": "number",
+      "description": "Height in cm"
+    },
+    "transformation_goal": {
+      "type": "string",
+      "description": "User's main transformation goal"
+    },
+    "completed_workouts": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "List of completed workout IDs",
+      "default": []
+    },
+    "completed_mindset_lessons": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "List of completed mindset lesson IDs",
+      "default": []
+    }
+  },
+  "name": "User"
+}

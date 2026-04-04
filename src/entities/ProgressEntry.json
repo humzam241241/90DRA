@@ -1,0 +1,69 @@
+{
+  "name": "ProgressEntry",
+  "type": "object",
+  "properties": {
+    "date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date of measurement"
+    },
+    "weight": {
+      "type": "number",
+      "description": "Weight in kg or lbs"
+    },
+    "body_fat_percentage": {
+      "type": "number",
+      "description": "Body fat percentage"
+    },
+    "mood_score": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 10,
+      "description": "Mood rating 1-10"
+    },
+    "energy_score": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 10,
+      "description": "Energy level 1-10"
+    },
+    "confidence_score": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 10,
+      "description": "Confidence level 1-10"
+    },
+    "measurements": {
+      "type": "object",
+      "properties": {
+        "chest": {
+          "type": "number"
+        },
+        "waist": {
+          "type": "number"
+        },
+        "hips": {
+          "type": "number"
+        },
+        "arms": {
+          "type": "number"
+        },
+        "thighs": {
+          "type": "number"
+        }
+      },
+      "description": "Body measurements in cm or inches"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Additional notes or observations"
+    },
+    "photo_url": {
+      "type": "string",
+      "description": "Progress photo URL"
+    }
+  },
+  "required": [
+    "date"
+  ]
+}

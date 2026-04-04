@@ -1,0 +1,70 @@
+{
+  "name": "Workout",
+  "type": "object",
+  "properties": {
+    "day_number": {
+      "type": "integer",
+      "description": "Program day (1-90)"
+    },
+    "title": {
+      "type": "string",
+      "description": "Workout title"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "strength",
+        "cardio",
+        "hiit",
+        "recovery",
+        "mobility"
+      ],
+      "description": "Workout type"
+    },
+    "duration_minutes": {
+      "type": "integer",
+      "description": "Expected duration in minutes"
+    },
+    "exercises": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "sets": {
+            "type": "integer"
+          },
+          "reps": {
+            "type": "string"
+          },
+          "rest_seconds": {
+            "type": "integer"
+          },
+          "notes": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "Exercise details"
+    },
+    "description": {
+      "type": "string",
+      "description": "Workout description and goals"
+    },
+    "difficulty": {
+      "type": "string",
+      "enum": [
+        "beginner",
+        "intermediate",
+        "advanced"
+      ]
+    }
+  },
+  "required": [
+    "day_number",
+    "title",
+    "category"
+  ]
+}
