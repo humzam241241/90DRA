@@ -146,31 +146,26 @@ const entities = new Proxy({}, {
 const integrations = {
   Core: {
     async InvokeLLM({ prompt, response_json_schema }) {
-      const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
-      if (!apiKey) {
-        throw new Error('AI features require an OpenAI API key. Set VITE_OPENAI_API_KEY in your .env file.');
-      }
+      // Call Supabase Edge Function to keep API keys server-side
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) throw new Error('Must be logged in to use AI features');
 
-      const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      const response = await fetch(`${supabaseUrl}/functions/v1/invoke-llm`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${apiKey}`,
+          'Authorization': `Bearer ${session.access_token}`,
         },
-        body: JSON.stringify({
-          model: 'gpt-4o-mini',
-          messages: [{ role: 'user', content: prompt }],
-          response_format: response_json_schema ? { type: 'json_object' } : undefined,
-        }),
+        body: JSON.stringify({ prompt, response_json_schema }),
       });
 
       if (!response.ok) {
-        throw new Error(`OpenAI API error: ${response.status}`);
+        const err = await response.text();
+        throw new Error(`AI request failed: ${err}`);
       }
 
-      const result = await response.json();
-      const content = result.choices[0].message.content;
-      return JSON.parse(content);
+      return await response.json();
     },
     async SendEmail() { console.warn('SendEmail not implemented'); },
     async SendSMS() { console.warn('SendSMS not implemented'); },
