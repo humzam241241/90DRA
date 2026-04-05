@@ -13,45 +13,81 @@ serve(async (req) => {
   try {
     const openaiKey = Deno.env.get("OPENAI_API_KEY");
     if (!openaiKey) {
+      console.error("OPENAI_API_KEY not set in Supabase secrets");
       return new Response(
-        JSON.stringify({ error: "OPENAI_API_KEY not configured. Set it via: supabase secrets set OPENAI_API_KEY=sk-..." }),
+        JSON.stringify({ error: "OPENAI_API_KEY not configured" }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    const { prompt, response_json_schema } = await req.json();
+    const body = await req.json();
+    const { prompt, response_json_schema } = body;
+    console.log("Received request, prompt length:", prompt?.length);
 
+    const wantsJson = !!response_json_schema;
+    const messages = [
+      {
+        role: "system",
+        content: wantsJson
+          ? "You are a helpful assistant. Always respond with valid JSON matching the requested schema."
+          : "You are a helpful assistant.",
+      },
+      { role: "user", content: prompt },
+    ];
+
+    const openaiBody: Record<string, unknown> = {
+      model: "gpt-4o-mini",
+      messages,
+    };
+    if (wantsJson) {
+      openaiBody.response_format = { type: "json_object" };
+    }
+
+    console.log("Calling OpenAI...");
     const response = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${openaiKey}`,
       },
-      body: JSON.stringify({
-        model: "gpt-4o-mini",
-        messages: [{ role: "user", content: prompt }],
-        response_format: response_json_schema ? { type: "json_object" } : undefined,
-      }),
+      body: JSON.stringify(openaiBody),
     });
 
+    const responseText = await response.text();
+    console.log("OpenAI status:", response.status);
+
     if (!response.ok) {
-      const errText = await response.text();
-      return new Response(errText, {
-        status: response.status,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      console.error("OpenAI error body:", responseText);
+      return new Response(
+        JSON.stringify({ error: `OpenAI API error (${response.status}): ${responseText}` }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
     }
 
-    const result = await response.json();
-    const content = result.choices[0].message.content;
+    const result = JSON.parse(responseText);
+    const content = result.choices?.[0]?.message?.content;
 
-    return new Response(content, {
+    if (!content) {
+      console.error("No content in OpenAI response:", result);
+      return new Response(
+        JSON.stringify({ error: "Empty response from OpenAI" }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    console.log("Success, returning content");
+
+    // If JSON was requested, parse it; otherwise return as text wrapped in object
+    const payload = wantsJson ? JSON.parse(content) : { text: content };
+
+    return new Response(JSON.stringify(payload), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (err) {
-    return new Response(JSON.stringify({ error: err.message }), {
-      status: 500,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    console.error("Function error:", err.message, err.stack);
+    return new Response(
+      JSON.stringify({ error: err.message }),
+      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
   }
 });
