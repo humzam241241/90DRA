@@ -1,0 +1,4 @@
+project_id = "fubtkucyduomasrshyft"
+
+[functions.invoke-llm]
+verify_jwt = false
