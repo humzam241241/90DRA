@@ -146,26 +146,16 @@ const entities = new Proxy({}, {
 const integrations = {
   Core: {
     async InvokeLLM({ prompt, response_json_schema }) {
-      // Call Supabase Edge Function to keep API keys server-side
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) throw new Error('Must be logged in to use AI features');
-
-      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-      const response = await fetch(`${supabaseUrl}/functions/v1/invoke-llm`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session.access_token}`,
-        },
-        body: JSON.stringify({ prompt, response_json_schema }),
+      // Call Supabase Edge Function via SDK - handles auth headers automatically
+      const { data, error } = await supabase.functions.invoke('invoke-llm', {
+        body: { prompt, response_json_schema },
       });
 
-      if (!response.ok) {
-        const err = await response.text();
-        throw new Error(`AI request failed: ${err}`);
+      if (error) {
+        throw new Error(`AI request failed: ${error.message}`);
       }
 
-      return await response.json();
+      return data;
     },
     async SendEmail() { console.warn('SendEmail not implemented'); },
     async SendSMS() { console.warn('SendSMS not implemented'); },
