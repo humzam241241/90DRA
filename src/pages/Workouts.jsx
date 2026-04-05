@@ -33,8 +33,8 @@ export default function Workouts() {
   const { data: workouts, isLoading } = useQuery({
     queryKey: ['workouts'],
     queryFn: async () => {
-      const allWorkouts = await base44.entities.Workout.list('day_number');
-      return user ? allWorkouts.filter(w => w.created_by === user.email) : allWorkouts;
+      // RLS restricts results to the current user automatically
+      return await base44.entities.Workout.list('day_number');
     },
     initialData: [],
     enabled: !!user,

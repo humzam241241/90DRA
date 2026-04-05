@@ -201,6 +201,10 @@ Return as a JSON array of workout objects.`;
         throw new Error(`AI generation failed: ${llmError.message || 'Connection error'}`);
       }
 
+      // Delete existing workouts before creating new ones (avoid duplicates)
+      const existing = await base44.entities.Workout.list();
+      await Promise.all(existing.map(w => base44.entities.Workout.delete(w.id)));
+
       // Create workout records
       if (result.workouts && result.workouts.length > 0) {
         // Distribute the 15 workouts across 90 days (repeat pattern)

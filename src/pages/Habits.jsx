@@ -69,8 +69,7 @@ export default function Habits() {
       const logs = await base44.entities.HabitLog.list('-timestamp');
       return logs.filter(log => {
         const logDate = new Date(log.timestamp);
-        return logDate >= new Date(startOfDayTime) && logDate <= new Date(endOfDayTime) &&
-               log.created_by === user?.email;
+        return logDate >= new Date(startOfDayTime) && logDate <= new Date(endOfDayTime);
       });
     },
     enabled: !!user,
