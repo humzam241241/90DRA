@@ -285,7 +285,7 @@ export default function Habits() {
 
       {/* Main Content */}
       <Tabs defaultValue="log" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4 lg:w-auto">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="log">Log Habits</TabsTrigger>
           <TabsTrigger value="swaps">Smart Swaps</TabsTrigger>
           <TabsTrigger value="history">History</TabsTrigger>

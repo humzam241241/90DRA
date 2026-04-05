@@ -1,161 +1,133 @@
 import React from "react";
 import { motion } from "framer-motion";
-import { Zap, TrendingUp, TrendingDown, Flame } from "lucide-react";
+import { TrendingUp, TrendingDown, Flame } from "lucide-react";
 
 export default function InteractiveDopamineGauge({ score, goodTotal, badTotal, streak }) {
   const maxScore = 500;
-  const normalizedScore = Math.max(-100, Math.min(100, (score / maxScore) * 100));
-  const rotation = (normalizedScore / 100) * 135; // -135 to +135 degrees
-  
+  const normalized = Math.max(-100, Math.min(100, (score / maxScore) * 100));
+  // Needle angle: -100 → -90deg, 0 → 0deg, +100 → +90deg
+  const needleAngle = (normalized / 100) * 90;
+
   const getScoreColor = () => {
-    if (normalizedScore > 50) return 'from-emerald-400 to-emerald-600';
-    if (normalizedScore > 0) return 'from-green-400 to-green-600';
-    if (normalizedScore > -50) return 'from-orange-400 to-orange-600';
-    return 'from-red-400 to-red-600';
+    if (score > 50) return "text-emerald-600";
+    if (score > 0) return "text-green-600";
+    if (score > -50) return "text-orange-600";
+    if (score < 0) return "text-red-600";
+    return "text-slate-600";
   };
 
-  const getGlowColor = () => {
-    if (normalizedScore > 50) return 'rgba(16, 185, 129, 0.5)';
-    if (normalizedScore > 0) return 'rgba(34, 197, 94, 0.5)';
-    if (normalizedScore > -50) return 'rgba(251, 146, 60, 0.5)';
-    return 'rgba(239, 68, 68, 0.5)';
+  const getLabel = () => {
+    if (score > 100) return "Excellent";
+    if (score > 50) return "Great";
+    if (score > 0) return "Good";
+    if (score === 0) return "Neutral";
+    if (score > -50) return "Needs Work";
+    return "Critical";
   };
 
   return (
-    <div className="relative w-full aspect-square max-w-sm mx-auto">
-      {/* Gauge Background */}
-      <svg viewBox="0 0 200 120" className="w-full">
-        <defs>
-          <linearGradient id="gaugeGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stopColor="#EF4444" />
-            <stop offset="50%" stopColor="#F59E0B" />
-            <stop offset="75%" stopColor="#22C55E" />
-            <stop offset="100%" stopColor="#10B981" />
-          </linearGradient>
-          <filter id="glow">
-            <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
-            <feMerge>
-              <feMergeNode in="coloredBlur"/>
-              <feMergeNode in="SourceGraphic"/>
-            </feMerge>
-          </filter>
-        </defs>
-        
-        {/* Gauge Arc Background */}
-        <path
-          d="M 25 100 A 75 75 0 0 1 175 100"
-          fill="none"
-          stroke="rgba(0,0,0,0.1)"
-          strokeWidth="20"
-          strokeLinecap="round"
-        />
-        
-        {/* Gauge Arc Gradient */}
-        <path
-          d="M 25 100 A 75 75 0 0 1 175 100"
-          fill="none"
-          stroke="url(#gaugeGradient)"
-          strokeWidth="20"
-          strokeLinecap="round"
-          opacity="0.3"
-        />
-        
-        {/* Tick Marks */}
-        {[-100, -50, 0, 50, 100].map((value, i) => {
-          const angle = ((value / 100) * 135 - 90) * (Math.PI / 180);
-          const x1 = 100 + 60 * Math.cos(angle);
-          const y1 = 100 + 60 * Math.sin(angle);
-          const x2 = 100 + 75 * Math.cos(angle);
-          const y2 = 100 + 75 * Math.sin(angle);
-          
-          return (
-            <line
-              key={i}
-              x1={x1}
-              y1={y1}
-              x2={x2}
-              y2={y2}
-              stroke="rgba(0,0,0,0.3)"
-              strokeWidth="2"
-              strokeLinecap="round"
-            />
-          );
-        })}
-      </svg>
+    <div className="w-full flex flex-col items-center">
+      {/* Gauge SVG */}
+      <div className="relative w-full max-w-[320px]">
+        <svg viewBox="0 0 200 120" className="w-full">
+          <defs>
+            <linearGradient id="gaugeGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor="#EF4444" />
+              <stop offset="33%" stopColor="#F59E0B" />
+              <stop offset="66%" stopColor="#84CC16" />
+              <stop offset="100%" stopColor="#10B981" />
+            </linearGradient>
+          </defs>
 
-      {/* Needle */}
-      <motion.div
-        className="absolute inset-0 flex items-center justify-center"
-        style={{ transformOrigin: 'center bottom' }}
-      >
-        <motion.div
-          className="relative"
-          style={{ width: '100%', height: '60%' }}
-          animate={{ rotate: rotation }}
-          transition={{ type: "spring", stiffness: 100, damping: 15 }}
-        >
-          <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2"
-               style={{ width: '4px', height: '45%', transformOrigin: 'bottom' }}>
-            <div className={`w-full h-full bg-gradient-to-t ${getScoreColor()} rounded-full shadow-lg`}
-                 style={{ filter: `drop-shadow(0 0 10px ${getGlowColor()})` }} />
-          </div>
-        </motion.div>
-      </motion.div>
+          {/* Track */}
+          <path
+            d="M 20 100 A 80 80 0 0 1 180 100"
+            fill="none"
+            stroke="#F1F5F9"
+            strokeWidth="18"
+            strokeLinecap="round"
+          />
 
-      {/* Center Circle */}
-      <div className="absolute inset-0 flex items-end justify-center pb-4">
-        <motion.div
-          className={`w-16 h-16 rounded-full bg-gradient-to-br ${getScoreColor()} flex items-center justify-center shadow-xl`}
-          animate={{ 
-            boxShadow: [`0 0 20px ${getGlowColor()}`, `0 0 30px ${getGlowColor()}`, `0 0 20px ${getGlowColor()}`]
-          }}
-          transition={{ duration: 2, repeat: Infinity }}
-        >
-          <Zap className="w-8 h-8 text-white" />
-        </motion.div>
+          {/* Colored arc */}
+          <path
+            d="M 20 100 A 80 80 0 0 1 180 100"
+            fill="none"
+            stroke="url(#gaugeGrad)"
+            strokeWidth="18"
+            strokeLinecap="round"
+          />
+
+          {/* Tick marks */}
+          {[-100, -50, 0, 50, 100].map((value) => {
+            const angle = ((value / 100) * 90 - 90) * (Math.PI / 180);
+            const x1 = 100 + 65 * Math.cos(angle);
+            const y1 = 100 + 65 * Math.sin(angle);
+            const x2 = 100 + 80 * Math.cos(angle);
+            const y2 = 100 + 80 * Math.sin(angle);
+            return (
+              <line
+                key={value}
+                x1={x1}
+                y1={y1}
+                x2={x2}
+                y2={y2}
+                stroke="white"
+                strokeWidth="2"
+                strokeLinecap="round"
+              />
+            );
+          })}
+
+          {/* Needle */}
+          <motion.line
+            x1="100"
+            y1="100"
+            x2="100"
+            y2="30"
+            stroke="#0F172A"
+            strokeWidth="3"
+            strokeLinecap="round"
+            style={{ transformOrigin: "100px 100px" }}
+            animate={{ rotate: needleAngle }}
+            transition={{ type: "spring", stiffness: 100, damping: 15 }}
+          />
+
+          {/* Needle pivot */}
+          <circle cx="100" cy="100" r="6" fill="#0F172A" />
+          <circle cx="100" cy="100" r="3" fill="white" />
+        </svg>
       </div>
 
-      {/* Score Display */}
-      <div className="absolute bottom-0 left-0 right-0 text-center pb-2">
+      {/* Score label below gauge */}
+      <div className="text-center mt-4">
         <motion.div
-          className="text-4xl font-bold"
+          className={`text-5xl font-bold ${getScoreColor()}`}
           key={score}
           initial={{ scale: 1.2, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
         >
-          <span className={score > 0 ? 'text-emerald-600' : score < 0 ? 'text-red-600' : 'text-slate-600'}>
-            {score > 0 ? '+' : ''}{score}
-          </span>
+          {score > 0 ? "+" : ""}{score}
         </motion.div>
-        <div className="text-xs text-slate-500 font-medium">Dopamine Score</div>
+        <div className="text-sm text-slate-500 font-medium mt-1">
+          Dopamine Score · <span className="font-semibold">{getLabel()}</span>
+        </div>
       </div>
 
-      {/* Stats Pills */}
-      <div className="absolute -bottom-12 left-0 right-0 flex justify-center gap-3">
-        <motion.div 
-          className="bg-emerald-100 text-emerald-700 px-4 py-2 rounded-full flex items-center gap-2 shadow-sm"
-          whileHover={{ scale: 1.05 }}
-        >
+      {/* Stats pills */}
+      <div className="flex gap-3 mt-4 flex-wrap justify-center">
+        <div className="bg-emerald-50 text-emerald-700 px-4 py-2 rounded-full flex items-center gap-2 border border-emerald-200">
           <TrendingUp className="w-4 h-4" />
-          <span className="text-sm font-semibold">{goodTotal}</span>
-        </motion.div>
-        <motion.div 
-          className="bg-rose-100 text-rose-700 px-4 py-2 rounded-full flex items-center gap-2 shadow-sm"
-          whileHover={{ scale: 1.05 }}
-        >
+          <span className="text-sm font-semibold">+{goodTotal} good</span>
+        </div>
+        <div className="bg-rose-50 text-rose-700 px-4 py-2 rounded-full flex items-center gap-2 border border-rose-200">
           <TrendingDown className="w-4 h-4" />
-          <span className="text-sm font-semibold">{badTotal}</span>
-        </motion.div>
+          <span className="text-sm font-semibold">-{badTotal} bad</span>
+        </div>
         {streak > 0 && (
-          <motion.div 
-            className="bg-orange-100 text-orange-700 px-4 py-2 rounded-full flex items-center gap-2 shadow-sm"
-            whileHover={{ scale: 1.05 }}
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-          >
+          <div className="bg-orange-50 text-orange-700 px-4 py-2 rounded-full flex items-center gap-2 border border-orange-200">
             <Flame className="w-4 h-4" />
-            <span className="text-sm font-semibold">{streak}</span>
-          </motion.div>
+            <span className="text-sm font-semibold">{streak} day streak</span>
+          </div>
         )}
       </div>
     </div>
