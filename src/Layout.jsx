@@ -11,10 +11,14 @@ import {
   Menu,
   X,
   Zap,
-  Target
+  Target,
+  LogOut,
+  User as UserIcon,
+  Shield,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { base44 } from "@/api/base44Client";
+import { useAuth } from "@/lib/AuthContext";
 
 const navigationItems = [
   { title: "Dashboard", url: "Dashboard", icon: LayoutDashboard },
@@ -24,12 +28,14 @@ const navigationItems = [
   { title: "Mindset", url: "Mindset", icon: Brain },
   { title: "Progress", url: "Progress", icon: TrendingUp },
   { title: "Community", url: "Community", icon: Users },
+  { title: "Profile", url: "Profile", icon: UserIcon },
 ];
 
 export default function Layout({ children, currentPageName }) {
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
   const [user, setUser] = React.useState(null);
+  const { logout } = useAuth();
 
   React.useEffect(() => {
     loadUser();
@@ -44,6 +50,11 @@ export default function Layout({ children, currentPageName }) {
     }
   };
 
+  const handleSignOut = async () => {
+    await logout();
+    window.location.href = "/login";
+  };
+
   const calculateDayNumber = () => {
     if (!user?.program_start_date) return 1;
     const start = new Date(user.program_start_date);
@@ -55,6 +66,11 @@ export default function Layout({ children, currentPageName }) {
 
   const totalXP = (user?.mindset_xp || 0) + (user?.workout_xp || 0) + (user?.nutrition_xp || 0);
   const level = Math.floor(totalXP / 1000) + 1;
+  const isAdmin = user?.role === 'admin';
+
+  const allNavItems = isAdmin
+    ? [...navigationItems, { title: "Admin", url: "Admin", icon: Shield }]
+    : navigationItems;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
@@ -72,19 +88,19 @@ export default function Layout({ children, currentPageName }) {
       <header className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-200">
         <div className="flex items-center justify-between px-4 py-3">
           <div className="flex items-center gap-3">
-              <div className="relative">
-                <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
-                  <Zap className="w-5 h-5 text-white" />
-                </div>
-                <div className="absolute -top-1 -right-1 w-5 h-5 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center text-white text-[10px] font-bold shadow-lg">
-                  {level}
-                </div>
+            <div className="relative">
+              <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
+                <Zap className="w-5 h-5 text-white" />
               </div>
-              <div>
-                <h1 className="font-bold text-lg text-gray-900">RECOMP</h1>
-                <p className="text-xs text-gray-500">Day {calculateDayNumber()} • Level {level}</p>
+              <div className="absolute -top-1 -right-1 w-5 h-5 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center text-white text-[10px] font-bold shadow-lg">
+                {level}
               </div>
             </div>
+            <div>
+              <h1 className="font-bold text-lg text-gray-900">RECOMP</h1>
+              <p className="text-xs text-gray-500">Day {calculateDayNumber()} • Level {level}</p>
+            </div>
+          </div>
           <Button
             variant="ghost"
             size="icon"
@@ -98,7 +114,7 @@ export default function Layout({ children, currentPageName }) {
         {mobileMenuOpen && (
           <div className="absolute top-full left-0 right-0 bg-white border-b border-gray-200 shadow-lg">
             <nav className="px-4 py-2">
-              {navigationItems.map((item) => (
+              {allNavItems.map((item) => (
                 <Link
                   key={item.title}
                   to={createPageUrl(item.url)}
@@ -113,6 +129,13 @@ export default function Layout({ children, currentPageName }) {
                   <span className="font-medium">{item.title}</span>
                 </Link>
               ))}
+              <button
+                onClick={handleSignOut}
+                className="w-full flex items-center gap-3 px-4 py-3 rounded-lg mb-1 text-red-600 hover:bg-red-50 transition-colors"
+              >
+                <LogOut className="w-5 h-5" />
+                <span className="font-medium">Sign Out</span>
+              </button>
             </nav>
           </div>
         )}
@@ -122,19 +145,19 @@ export default function Layout({ children, currentPageName }) {
       <aside className="hidden lg:flex fixed left-0 top-0 bottom-0 w-72 bg-white/80 backdrop-blur-md border-r border-gray-200 flex-col">
         <div className="p-6 border-b border-gray-200">
           <div className="flex items-center gap-3 mb-4">
-              <div className="relative">
-                <div className="w-14 h-14 bg-gradient-to-br from-blue-600 to-purple-600 rounded-2xl flex items-center justify-center shadow-xl">
-                  <Zap className="w-7 h-7 text-white" />
-                </div>
-                <div className="absolute -top-2 -right-2 w-7 h-7 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center text-white text-xs font-bold shadow-lg border-2 border-white">
-                  {level}
-                </div>
+            <div className="relative">
+              <div className="w-14 h-14 bg-gradient-to-br from-blue-600 to-purple-600 rounded-2xl flex items-center justify-center shadow-xl">
+                <Zap className="w-7 h-7 text-white" />
               </div>
-              <div>
-                <h1 className="font-bold text-2xl text-gray-900">RECOMP</h1>
-                <p className="text-sm text-gray-500">Level {level} • {totalXP} XP</p>
+              <div className="absolute -top-2 -right-2 w-7 h-7 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center text-white text-xs font-bold shadow-lg border-2 border-white">
+                {level}
               </div>
             </div>
+            <div>
+              <h1 className="font-bold text-2xl text-gray-900">RECOMP</h1>
+              <p className="text-sm text-gray-500">Level {level} • {totalXP} XP</p>
+            </div>
+          </div>
           <div className="bg-gradient-to-br from-blue-600 via-purple-600 to-violet-700 rounded-2xl p-5 text-white shadow-xl">
             <div className="flex items-center justify-between mb-3">
               <div className="text-sm font-semibold opacity-90">Your Journey</div>
@@ -158,7 +181,7 @@ export default function Layout({ children, currentPageName }) {
 
         <nav className="flex-1 p-4 overflow-y-auto">
           <div className="space-y-1">
-            {navigationItems.map((item) => (
+            {allNavItems.map((item) => (
               <Link
                 key={item.title}
                 to={createPageUrl(item.url)}
@@ -175,7 +198,7 @@ export default function Layout({ children, currentPageName }) {
           </div>
         </nav>
 
-        <div className="p-6 border-t border-gray-200">
+        <div className="p-6 border-t border-gray-200 space-y-3">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full flex items-center justify-center">
               <span className="text-white font-bold">{user?.full_name?.[0] || 'U'}</span>
@@ -185,6 +208,14 @@ export default function Layout({ children, currentPageName }) {
               <p className="text-sm text-gray-500 truncate">{user?.email}</p>
             </div>
           </div>
+          <Button
+            onClick={handleSignOut}
+            variant="outline"
+            className="w-full text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700"
+          >
+            <LogOut className="w-4 h-4 mr-2" />
+            Sign Out
+          </Button>
         </div>
       </aside>
 
