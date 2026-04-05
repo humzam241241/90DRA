@@ -204,13 +204,19 @@ Return as a JSON array of workout objects.`;
       // Create workout records
       if (result.workouts && result.workouts.length > 0) {
         // Distribute the 15 workouts across 90 days (repeat pattern)
+        // Only pick fields that exist in the workouts table schema
         const expandedWorkouts = [];
         for (let day = 1; day <= 90; day++) {
           const workoutIndex = (day - 1) % result.workouts.length;
           const baseWorkout = result.workouts[workoutIndex];
           expandedWorkouts.push({
-            ...baseWorkout,
-            day_number: day
+            day_number: day,
+            title: baseWorkout.title,
+            category: baseWorkout.category,
+            duration_minutes: baseWorkout.duration_minutes,
+            difficulty: baseWorkout.difficulty,
+            description: baseWorkout.description,
+            exercises: baseWorkout.exercises || [],
           });
         }
 
